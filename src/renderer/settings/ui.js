@@ -424,7 +424,9 @@ export function renderProviders() {
         div.draggable = !searchQuery; // Disable drag during search to prevent confusion
         div.dataset.index = originalIndex;
 
-        const favicon = provider.icon ? toImageSrc(provider.icon) : getFaviconUrl(provider.url);
+        // Extract first entry only for favicon resolution — multi-URL providers use ;; separator
+        const primaryUrl = provider.url.split(';;')[0].trim();
+        const favicon = provider.icon ? toImageSrc(provider.icon) : getFaviconUrl(primaryUrl);
         const catName = provider.category || 'Unsorted';
         const iconValue = categories[catName] || (catName === 'Unsorted' ? '🔴' : '🔍');
 
@@ -774,14 +776,14 @@ export function onTypeChange() {
                 urlLabel.textContent = 'Target URL';
                 urlLabel.innerHTML = 'Target URL';
             }
-            urlInput.placeholder = 'URL with {query} (e.g. https://google.com/search?q={query})';
+            urlInput.placeholder = 'Single or multi URL separated by ;; (e.g. https://google.com/search?q={query} ;; https://bing.com/search?q={query})';
             break;
         case 'file':
             if (urlLabel) {
-                urlLabel.textContent = 'Target File Path';
-                urlLabel.innerHTML = 'Target File Path';
+                urlLabel.textContent = 'Target File / Folder Path';
+                urlLabel.innerHTML = 'Target File / Folder Path';
             }
-            urlInput.placeholder = 'File or Folder Path (e.g. C:\\Users\\You\\Docs or C:\\Windows\\notepad.exe)';
+            urlInput.placeholder = 'Single or multi path separated by ;; (e.g. C:\\Tools\\notepad.exe ;; C:\\Users\\You\\Docs)';
             break;
         case 'cmd':
             if (urlLabel) {

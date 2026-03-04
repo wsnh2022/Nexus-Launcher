@@ -4,13 +4,21 @@
 ; ~*^s:: Reload
 
 ; CapsLock + S - Global Trigger
-; This allows CapsLock to work as a normal key on release, but as a modifier when held.
+; Tracks whether S was pressed during CapsLock hold to decide if native toggle should fire.
 ~*CapsLock:: {
-    ; Empty block to prevent native toggle on down press
+    global _capsUsedAsModifier := false  ; Reset modifier flag on every CapsLock press
 }
 
-CapsLock & s::
-{
+; CapsLock released alone (no S pressed) — restore native toggle behavior
+~*CapsLock Up:: {
+    if !_capsUsedAsModifier {
+        ; Manually toggle CapsLock state since AHK suppressed the native toggle
+        SetCapsLockState !GetKeyState("CapsLock", "T")
+    }
+}
+
+CapsLock & s:: {
+    global _capsUsedAsModifier := true   ; Mark that CapsLock was used as a modifier
     TriggerPopup()
 }
 

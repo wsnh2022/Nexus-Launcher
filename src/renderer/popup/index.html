@@ -4,9 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>PopSearch Beta</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Inter removed: Google Fonts load is async and causes fallback font flash in Electron popup -->
   <style>
     * {
       margin: 0;
@@ -17,7 +15,9 @@
     html,
     body {
       background: transparent !important;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-family: Consolas, 'Courier New', monospace;
+      -webkit-font-smoothing: antialiased;  /* Crisp text on dark backgrounds in Electron */
+      text-rendering: optimizeLegibility;
       overflow: hidden;
       margin: 0;
       padding: 0;
@@ -79,10 +79,10 @@
       border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 12px;
       padding: 10px 16px;
-      color: var(--popup-text);
+      color: #ffffff;
       font-family: inherit;
-      font-size: 14px;
-      font-weight: 500;
+      font-size: 16px;
+      font-weight: var(--popup-font-weight, 500);
       outline: none;
       transition: all 0.2s ease;
       box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -112,7 +112,8 @@
     }
 
     .label-cat {
-      font-size: 9px;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -122,9 +123,9 @@
     }
 
     .label-sep {
-      font-size: 10px;
-      font-weight: 300;
-      color: rgba(255, 255, 255, 0.2);
+      font-size: 11px;
+      font-weight: 500;              /* Heavier so → renders crisply */
+      color: rgba(255, 255, 255, 0.5);
       margin: 0 5px;
       opacity: 0;
       transition: opacity 0.15s ease;
@@ -132,8 +133,9 @@
     }
 
     .label-icon {
-      font-size: 10px;
-      font-weight: 600;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 11px;
+      font-weight: var(--popup-font-weight, 600);
       letter-spacing: 0.2px;
       color: rgba(255, 255, 255, 0.92);
       text-transform: none;

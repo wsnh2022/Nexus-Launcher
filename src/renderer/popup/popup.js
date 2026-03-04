@@ -165,7 +165,9 @@ function updateIconGrid() {
             iconContainer.setAttribute('data-tooltip', provider.name);
 
             const img = document.createElement('img');
-            img.src = provider.icon ? toImageSrc(provider.icon) : getFaviconUrl(provider.url);
+            // Extract first entry only for favicon resolution — multi-URL providers use ;; separator
+            const primaryUrl = provider.url.split(';;')[0].trim();
+            img.src = provider.icon ? toImageSrc(provider.icon) : getFaviconUrl(primaryUrl);
             img.className = 'provider-icon';
             img.style.width = `${iconSize}px`;
             img.style.height = `${iconSize}px`;
@@ -245,7 +247,7 @@ function updateCategoryLabel(iconName = null) {
 
     const sepSpan = document.createElement('span');
     sepSpan.className = 'label-sep';
-    sepSpan.textContent = '·';
+    sepSpan.textContent = '→';
 
     const iconSpan = document.createElement('span');
     iconSpan.className = 'label-icon';
@@ -288,9 +290,8 @@ function renderPopup() {
     searchInput.value = currentQuery;
 
     searchInput.oninput = (e) => {
-        currentQuery = e.target.value;
-        selectedIndex = 0; // Reset to first icon on every keystroke
-        updateIconGrid();
+        currentQuery = e.target.value;  // Track query only — grid rebuild not needed, icons don't change while typing
+        selectedIndex = 0;
     };
 
 
@@ -307,18 +308,12 @@ function renderPopup() {
         const firstTop = wrappers[0]?.getBoundingClientRect().top;
         const rowCount = wrappers.filter(w => w.getBoundingClientRect().top === firstTop).length || 1;
 
-        if (e.key === 'ArrowRight') {
-            const atEnd = searchInput.selectionStart === searchInput.value.length
-                && searchInput.selectionEnd === searchInput.value.length;
-            if (!atEnd) return;
-            e.preventDefault();
+        if (e.key === 'ArrowRight' && e.altKey) {
+            e.preventDefault(); // Suppress Alt+ArrowRight browser history navigation
             setSelectedIndex(selectedIndex < 0 ? 0 : (selectedIndex + 1) % count);
 
-        } else if (e.key === 'ArrowLeft') {
-            const atStart = searchInput.selectionStart === 0
-                && searchInput.selectionEnd === 0;
-            if (!atStart) return;
-            e.preventDefault();
+        } else if (e.key === 'ArrowLeft' && e.altKey) {
+            e.preventDefault(); // Suppress Alt+ArrowLeft browser history navigation
             setSelectedIndex(selectedIndex <= 0 ? count - 1 : selectedIndex - 1);
         } else if (e.key === 'ArrowDown') {
             e.preventDefault();

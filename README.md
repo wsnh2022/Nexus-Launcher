@@ -3,9 +3,9 @@
   <h1>PopSearch</h1>
 </div>
 
-# 🚀 PopSearch v1.3.0-beta - Instant Search Assistant
+# 🚀 PopSearch v1.3.1-beta - Instant Search Assistant
 
-[![Version](https://img.shields.io/badge/version-v1.3.0--beta-blue)](https://github.com/wsnh2022/pop-search/releases)
+[![Version](https://img.shields.io/badge/version-v1.3.1--beta-blue)](https://github.com/wsnh2022/pop-search/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078d7.svg?logo=windows&logoColor=white)](https://github.com/wsnh2022/pop-search)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 ![Electron](https://img.shields.io/badge/Electron-4B32C3?logo=electron&logoColor=white)
@@ -18,7 +18,7 @@ PopSearch triggers a customizable search popup from selected text using a global
 ---
 
 
-### 🆕 New in v1.3.0-beta
+### 🆕 New in v1.3.1-beta
 
 | | Feature | Description |
 |---|---|---|
@@ -75,7 +75,7 @@ PopSearch triggers a customizable search popup from selected text using a global
 - **Dependencies**: None (portable version)
 
 ### Steps
-1. Download `PopSearch-1.3.0-beta-portable.exe` from [Releases](https://github.com/wsnh2022/pop-search/releases)
+1. Download `PopSearch-1.3.1-beta-portable.exe` from [Releases](https://github.com/wsnh2022/pop-search/releases)
 2. Move to desired folder (Desktop, Documents, etc.)
 3. Run the application → appears in System Tray
 
@@ -223,7 +223,7 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## 📋 Changelog
 
-### v1.3.0-beta — 2026-02-20
+### v1.3.1-beta — 2026-02-20
 
 #### 🐛 Bug Fixes
 
@@ -233,6 +233,9 @@ MIT License. See [LICENSE](LICENSE) for details.
 | 2 | **Long command path breaks provider card layout** | The URL/path `<div>` had no text clamping. Long paths like `C:\Users\...\template.ahk` would wrap freely, pushing Edit/Remove buttons off-screen. | Added `white-space: nowrap; overflow: hidden; text-overflow: ellipsis` to the URL div and `min-width: 0` to the flex parent. Long paths now ellipsis-clip cleanly. |
 | 3 | **Quick-select category dropdown clipped/invisible** | Adding `overflow: hidden` to the `.provider-info` flex child (as part of fix #2) silently clipped the `position: absolute` category-change dropdown. | Removed `overflow: hidden` from the flex parent — only the URL `<div>` needs it. Dropdown renders freely again. |
 | 4 | **Cancel button missing in Add Provider form** | `#cancelBtn` had `display: none` hardcoded and was only shown when switching to Edit mode — no way to dismiss/reset the form in Add mode. | Removed the initial `display: none`. Cancel is now always visible. Clicking it clears and collapses the form in both Add and Edit modes. |
+| 5 | **Escape key launches "This PC" file manager** | Pressing the Escape key with an empty search query triggered a `shell.openExternal('')` backend call which natively opens the "This PC" folder on Windows. | Added an empty-target guard to `handleAction` so Escape solely closes the popup via `closePopup()` instead of initiating an empty search. |
+| 6 | **Floating Tooltips block UI and disrupt typing** | The popup CSS tooltips fired instantly on keyboard focus (obscuring the tabs row) and fired aggressively on hover during active typing. | Removed all floating CSS tooltips (`::after` and `:hover::after`). |
+| 7 | **Arrow keys navigate icons while typing text** | Pressing `ArrowLeft` or `ArrowRight` blindly jumped to adjacent icons, making standard text-editing within the input block impossible. | Added boundary edge detection: arrow keys now navigate icons *only* when the cursor reaches the start/end of the text box, or when `Alt` is held. |
 
 #### ✨ New Features
 
@@ -242,6 +245,8 @@ MIT License. See [LICENSE](LICENSE) for details.
 | 6 | **Keyboard shortcut table in Help & Support** | Full keyboard reference visible in Settings → Help & Support. |
 | 7 | **Category Drag-to-Reorder in Settings** | Category rows in Settings → Categories are now draggable. Drop target shows accent-color outline. Order is saved immediately and reflected in the popup tab bar and provider dropdowns. |
 | 8 | **Local file icon support (all formats)** | `.ico`, `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`, `.webp`, `.bmp` local paths accepted in icon fields. Auto-converted to portable Base64 data URLs on save. Icon field placeholder updated to list all supported formats. |
+| 9 | **Integrated Icon Label System** | Replaced obtrusive floating tooltips with a clean, dynamic label embedded below the search bar that updates smoothly during mouse hover and keyboard navigation. |
+| 10 | **Dynamic Settings Input Feedback** | Expanding the Settings Add/Edit menu now directly modifies the 'Target URL' field label to appropriately reflect whether a Web URL, Local File, or Command/Script is selected from the dropdown wrapper. |
 
 ---
 

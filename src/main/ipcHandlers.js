@@ -207,12 +207,24 @@ function handleAction(target, query, type, shouldCopy) {
     }
 
     if (type === 'url') {
-        const searchUrl = target.replace(/%s|{query}/g, encodeURIComponent(query));
-        openInBrowser(searchUrl);
+        // Split on ;; to support multi-URL launch — single URLs pass through as array of one
+        target.split(';;')
+            .map(u => u.trim())
+            .filter(Boolean)
+            .forEach(u => {
+                const searchUrl = u.replace(/%s|{query}/g, encodeURIComponent(query));
+                openInBrowser(searchUrl);
+            });
     } else if (type === 'file') {
-        shell.openPath(target).catch(err => {
-            logToFile(`[Main] openPath failed: ${err}`);
-        });
+        // Split on ;; to support multi-path launch — single paths pass through as array of one
+        target.split(';;')
+            .map(p => p.trim())
+            .filter(Boolean)
+            .forEach(p => {
+                shell.openPath(p).catch(err => {
+                    logToFile(`[Main] openPath failed for "${p}": ${err}`);
+                });
+            });
     } else if (type === 'cmd') {
         let command = target;
 

@@ -1,4 +1,4 @@
-// Shared Constants for PopSearch v1.3.0-beta
+// Shared Constants for PopSearch v1.3.1-beta
 
 export const IPC_CHANNELS = {
     SHOW_POPUP: 'show-popup',
