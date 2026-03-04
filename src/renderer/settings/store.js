@@ -28,6 +28,7 @@ export const Store = {
             fontWeight: localStorage.getItem('fontWeight') || DEFAULT_APPEARANCE.fontWeight,
             fontSize: localStorage.getItem('fontSize') || DEFAULT_APPEARANCE.fontSize,
             labelFontSize: localStorage.getItem('labelFontSize') || DEFAULT_APPEARANCE.labelFontSize,
+            labelFont: localStorage.getItem('labelFont') || DEFAULT_APPEARANCE.labelFont,
             fontColor: localStorage.getItem('fontColor') || DEFAULT_APPEARANCE.fontColor,
             bgColor: localStorage.getItem('bgColor') || DEFAULT_APPEARANCE.bgColor,
             accentColor: localStorage.getItem('accentColor') || DEFAULT_APPEARANCE.accentColor,
@@ -38,7 +39,15 @@ export const Store = {
         };
     },
 
-    saveAppearance({ iconSize, iconsPerRow, gridGapX, gridGapY, popupMaxWidth, theme, fontWeight, fontSize, labelFontSize, fontColor, bgColor, accentColor, tabActiveBg, customCSS, showDummyBtn, showUnsorted }) {
+    getThemePresets() {
+        return JSON.parse(localStorage.getItem('themePresets') || '[]');
+    },
+
+    saveThemePresets(presets) {
+        localStorage.setItem('themePresets', JSON.stringify(presets));
+    },
+
+    saveAppearance({ iconSize, iconsPerRow, gridGapX, gridGapY, popupMaxWidth, theme, fontWeight, fontSize, labelFontSize, labelFont, fontColor, bgColor, accentColor, tabActiveBg, customCSS, showDummyBtn, showUnsorted }) {
         localStorage.setItem('iconSize', iconSize);
         localStorage.setItem('iconsPerRow', iconsPerRow);
         if (gridGapX !== undefined) localStorage.setItem('gridGapX', gridGapX);
@@ -48,6 +57,7 @@ export const Store = {
         if (fontWeight !== undefined) localStorage.setItem('fontWeight', fontWeight);
         if (fontSize !== undefined) localStorage.setItem('fontSize', fontSize);
         if (labelFontSize !== undefined) localStorage.setItem('labelFontSize', labelFontSize);
+        if (labelFont !== undefined) localStorage.setItem('labelFont', labelFont);
         if (fontColor !== undefined) localStorage.setItem('fontColor', fontColor);
         if (bgColor !== undefined) localStorage.setItem('bgColor', bgColor);
         if (accentColor !== undefined) localStorage.setItem('accentColor', accentColor);

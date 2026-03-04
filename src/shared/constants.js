@@ -27,6 +27,7 @@ export const DEFAULT_APPEARANCE = {
     fontWeight: '500',
     fontSize: '14',
     labelFontSize: '10',
+    labelFont: 'Consolas',
     fontColor: '#00f2ff',
     bgColor: '#13132a',
     accentColor: '#5900ff',

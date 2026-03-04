@@ -1,12 +1,13 @@
 import { Store } from './store';
-import { setProviders, getProviders, getCategories, setCategories, showToast } from './ui';
+import { setProviders, getProviders, getCategories, setCategories, showToast, renderPresetDropdown } from './ui';
 
 export const Bridge = {
     async exportConfig() {
         const exportData = {
             appearance: Store.getAppearance(),
             providers: getProviders(),
-            categories: getCategories()
+            categories: getCategories(),
+            themePresets: Store.getThemePresets() // named color presets
         };
         const data = JSON.stringify(exportData, null, 2);
         const result = await window.electronAPI.saveConfig(data);
@@ -23,9 +24,20 @@ export const Bridge = {
                 // Handle Appearance settings if present
                 if (imported.appearance) {
                     Store.saveAppearance(imported.appearance);
-                    // Force a reload or update UI after appearance change if necessary
-                    // For now, simpler to just advise a reload or use the existing save flow
                     showToast('Appearance settings imported!', 'info');
+                }
+
+                // Handle theme presets if present — merge by name, don't wipe existing
+                if (Array.isArray(imported.themePresets) && imported.themePresets.length > 0) {
+                    const existing = Store.getThemePresets();
+                    const merged = [...existing];
+                    imported.themePresets.forEach(incoming => {
+                        const idx = merged.findIndex(p => p.name.toLowerCase() === incoming.name.toLowerCase());
+                        if (idx >= 0) merged[idx] = incoming; // overwrite same-named preset
+                        else merged.push(incoming);           // add new preset
+                    });
+                    Store.saveThemePresets(merged);
+                    renderPresetDropdown(); // sync dropdown immediately
                 }
 
                 // Support both old format (array of providers) and new format (object with providers + categories)

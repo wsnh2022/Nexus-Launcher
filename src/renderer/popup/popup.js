@@ -70,6 +70,7 @@ function applyTheme() {
         fontWeight: localStorage.getItem('fontWeight') || '500',
         fontSize: parseInt(localStorage.getItem('fontSize') || DEFAULT_APPEARANCE.fontSize),
         labelFontSize: parseInt(localStorage.getItem('labelFontSize') || DEFAULT_APPEARANCE.labelFontSize),
+        labelFont: localStorage.getItem('labelFont') || DEFAULT_APPEARANCE.labelFont,
         fontColor: localStorage.getItem('fontColor'),
         bgColor: localStorage.getItem('bgColor'),
         accentColor: localStorage.getItem('accentColor'),
@@ -84,6 +85,7 @@ function applyTheme() {
     root.style.setProperty('--popup-font-weight', s.fontWeight);
     root.style.setProperty('--popup-font-size', `${s.fontSize}px`);       // Search input font size
     root.style.setProperty('--label-font-size', `${s.labelFontSize}px`);  // Label font size (group name + icon label)
+    root.style.setProperty('--popup-font-family', s.labelFont);            // Font family for all popup text
 
     if (s.fontColor) {
         root.style.setProperty('--label-color', s.fontColor);

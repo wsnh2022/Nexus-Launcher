@@ -43,6 +43,7 @@ export function initUI() {
             mapSetting('fontWeight', settings.fontWeight || DEFAULT_APPEARANCE.fontWeight);
             mapSetting('fontSize', settings.fontSize || DEFAULT_APPEARANCE.fontSize);
             mapSetting('labelFontSize', settings.labelFontSize || DEFAULT_APPEARANCE.labelFontSize);
+            mapSetting('labelFont', settings.labelFont || DEFAULT_APPEARANCE.labelFont);
             mapSetting('fontColor', settings.fontColor || DEFAULT_APPEARANCE.fontColor);
             mapSetting('bgColor', settings.bgColor || DEFAULT_APPEARANCE.bgColor);
             mapSetting('accentColor', settings.accentColor || DEFAULT_APPEARANCE.accentColor);
@@ -50,13 +51,7 @@ export function initUI() {
             log('Appearance settings mapped to DOM.');
         } catch (e) { log(`Error mapping appearance: ${e.message}`); }
 
-        // 3. Update Previews
-        try {
-            updateColorPreview('fontColor', 'fontColorPreview');
-            updateColorPreview('bgColor', 'bgColorPreview');
-            updateColorPreview('accentColor', 'accentColorPreview');
-            updateColorPreview('tabActiveBg', 'tabActiveBgPreview');
-        } catch (e) { log(`Error updating previews: ${e.message}`); }
+        // 3. Color previews removed — native color input renders its own swatch
 
         // 4. Setup Listeners (The "Broken Input" Suspect)
         const saveSilently = () => saveAppearance(true);
@@ -64,15 +59,10 @@ export function initUI() {
         try {
             ['fontColor', 'bgColor', 'accentColor', 'tabActiveBg'].forEach(id => {
                 const el = document.getElementById(id);
-                if (el) {
-                    el.addEventListener('input', () => {
-                        updateColorPreview(id, id + 'Preview');
-                        saveSilently();
-                    });
-                }
+                if (el) el.addEventListener('input', saveSilently); // native swatch handles preview
             });
 
-            ['iconSize', 'iconsPerRow', 'gridGapX', 'gridGapY', 'fontWeight', 'fontSize', 'labelFontSize'].forEach(id => {
+            ['iconSize', 'iconsPerRow', 'gridGapX', 'gridGapY', 'fontWeight', 'fontSize', 'labelFontSize', 'labelFont'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.addEventListener('change', saveSilently);
             });
@@ -85,6 +75,7 @@ export function initUI() {
             updateCategorySelects();
             renderProviders();
             renderCategories();
+            renderPresetDropdown(); // Populate saved theme presets on load
             onTypeChange(); // Sync URL input placeholder with current type dropdown state on load
             log('UI Elements rendered (Providers/Categories).');
         } catch (e) { log(`Error rendering UI elements: ${e.message}`); }
@@ -831,6 +822,7 @@ export function saveAppearance(silent = false) {
     const fontWeight = document.getElementById('fontWeight')?.value || DEFAULT_APPEARANCE.fontWeight;
     const fontSize = document.getElementById('fontSize')?.value || DEFAULT_APPEARANCE.fontSize;
     const labelFontSize = document.getElementById('labelFontSize')?.value || DEFAULT_APPEARANCE.labelFontSize;
+    const labelFont = document.getElementById('labelFont')?.value || DEFAULT_APPEARANCE.labelFont;
     const fontColor = document.getElementById('fontColor')?.value || DEFAULT_APPEARANCE.fontColor;
     const bgColor = document.getElementById('bgColor')?.value || DEFAULT_APPEARANCE.bgColor;
     const accentColor = document.getElementById('accentColor')?.value || DEFAULT_APPEARANCE.accentColor;
@@ -848,6 +840,7 @@ export function saveAppearance(silent = false) {
         fontWeight,
         fontSize,
         labelFontSize,
+        labelFont,
         fontColor,
         bgColor,
         accentColor,
@@ -896,13 +889,6 @@ export function setCategories(c) { categories = c; renderCategories(); updateCat
 
 
 
-function updateColorPreview(inputId, previewId) {
-    const input = document.getElementById(inputId);
-    const preview = document.getElementById(previewId);
-    if (input && preview) {
-        preview.style.backgroundColor = input.value;
-    }
-}
 
 export function parseBulkImport(text) {
     const lines = text.split('\n');
@@ -1023,41 +1009,62 @@ export async function executeBulkImport() {
     if (!confirmed) return;
 
 
-    // 1. Update Categories if they don't exist
+    // 1. Resolve categories — map 'General' (parseBulkImport default) to '' (Unsorted)
+    //    Only create a new category key for explicitly named categories, never for the
+    //    implicit fallback, to avoid injecting a junk 'Unsorted' key into the category store.
     const existingCats = Store.getCategories();
     newItems.forEach(item => {
-        const catName = item.category === 'General' ? 'Unsorted' : (item.category || 'Unsorted');
-        if (!existingCats[catName]) {
-            existingCats[catName] = '📁'; // Default icon for new categories
+        const rawCat = item.category;
+        if (!rawCat || rawCat === 'General') {
+            item.category = ''; // Treat as unsorted — no explicit category key created
+            return;
         }
-        item.category = catName;
+        if (!existingCats[rawCat]) {
+            existingCats[rawCat] = '📁'; // New named category — add with default icon
+        }
     });
     Store.saveCategories(existingCats);
     setCategories(existingCats);
 
-    // 2. Add Favicons in background
+    // 2. Resolve favicons
     showToast(`Importing ${newItems.length} items...`, 'info');
 
-    const processedItems = newItems.map(item => {
-        return {
-            ...item,
-            icon: item.icon || ((item.type === 'url' || !item.type) ? getFaviconUrl(item.url) : '')
-        };
-    });
+    const processedItems = newItems.map(item => ({
+        ...item,
+        icon: item.icon || ((item.type === 'url' || !item.type) ? getFaviconUrl(item.url) : '')
+    }));
 
-    // 3. Merge and Save
+    // 3. Dedup: skip any incoming item whose name+url already exists in current providers
     const currentProviders = Store.getProviders();
-    const merged = [...currentProviders, ...processedItems];
+    const existingKeys = new Set(
+        currentProviders.map(p => `${p.name.toLowerCase()}||${p.url.toLowerCase()}`)
+    );
+    const dedupedItems = processedItems.filter(
+        item => !existingKeys.has(`${item.name.toLowerCase()}||${item.url.toLowerCase()}`)
+    );
+    const skippedCount = processedItems.length - dedupedItems.length;
 
-    Store.saveProviders(merged);
-    setProviders(merged);
+    if (dedupedItems.length === 0) {
+        showToast(`All ${processedItems.length} provider(s) already exist — nothing imported.`, 'info');
+        return;
+    }
+
+    // 4. Merge and save with error handling
+    try {
+        const merged = [...currentProviders, ...dedupedItems];
+        Store.saveProviders(merged);
+        setProviders(merged);
+    } catch (err) {
+        showToast(`Save failed: ${err.message}`, 'error');
+        return;
+    }
 
     // UI feedback
     bulkPad.value = '';
     renderBulkPreview([]);
-    showToast('Bulk import completed!', 'success');
+    const skipMsg = skippedCount > 0 ? ` (${skippedCount} duplicate(s) skipped)` : '';
+    showToast(`Imported ${dedupedItems.length} provider(s)${skipMsg}.`, 'success');
 
-    // Scroll to providers list to show the new items
     setTimeout(() => {
         showSection('providers-list', document.getElementById('nav-providers'));
     }, 1000);
@@ -1101,6 +1108,113 @@ export function changeProviderCategory(index, newCat, event) {
     Store.saveProviders(providers);
     renderProviders();
     showToast(`Moved to ${newCat}`, 'success');
+}
+
+// ─── Appearance Presets ────────────────────────────────────────────────────
+
+/** Rebuild the preset <select> from localStorage. */
+export function renderPresetDropdown() {
+    const select = document.getElementById('presetSelect');
+    if (!select) return;
+    const presets = Store.getThemePresets();
+    const current = select.value; // preserve selection if it still exists
+    select.innerHTML = '<option value="">— Select a preset —</option>';
+    presets.forEach((p, i) => {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = p.name;
+        select.appendChild(opt);
+    });
+    // Restore selection only if index still valid
+    if (current !== '' && presets[parseInt(current)]) select.value = current;
+}
+
+/** Read current color inputs and save as a named preset. */
+export async function savePreset() {
+    const nameInput = document.getElementById('presetName');
+    const name = nameInput?.value.trim();
+    if (!name) {
+        showToast('Enter a theme name before saving.', 'error');
+        nameInput?.focus();
+        return;
+    }
+
+    const preset = {
+        name,
+        fontColor: document.getElementById('fontColor')?.value || DEFAULT_APPEARANCE.fontColor,
+        bgColor: document.getElementById('bgColor')?.value || DEFAULT_APPEARANCE.bgColor,
+        accentColor: document.getElementById('accentColor')?.value || DEFAULT_APPEARANCE.accentColor,
+        tabActiveBg: document.getElementById('tabActiveBg')?.value || DEFAULT_APPEARANCE.tabActiveBg
+    };
+
+    const presets = Store.getThemePresets();
+    // Overwrite if same name already exists, otherwise push
+    const existing = presets.findIndex(p => p.name.toLowerCase() === name.toLowerCase());
+    if (existing >= 0) {
+        presets[existing] = preset; // overwrite silently
+    } else {
+        presets.push(preset);
+    }
+
+    Store.saveThemePresets(presets);
+    renderPresetDropdown();
+
+    // Select the just-saved preset in the dropdown
+    const select = document.getElementById('presetSelect');
+    if (select) {
+        const targetIdx = Store.getThemePresets().findIndex(p => p.name.toLowerCase() === name.toLowerCase());
+        select.value = targetIdx;
+    }
+
+    if (nameInput) nameInput.value = '';
+    showToast(`Preset "${name}" saved.`, 'success');
+}
+
+/** Load the selected preset into the color inputs and persist immediately. */
+export function loadPreset() {
+    const select = document.getElementById('presetSelect');
+    const idx = parseInt(select?.value);
+    if (isNaN(idx)) { showToast('Select a preset first.', 'error'); return; }
+
+    const presets = Store.getThemePresets();
+    const preset = presets[idx];
+    if (!preset) { showToast('Preset not found.', 'error'); return; }
+
+    // Apply to DOM
+    const setColor = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val;
+    };
+    setColor('fontColor', preset.fontColor);
+    setColor('bgColor', preset.bgColor);
+    setColor('accentColor', preset.accentColor);
+    setColor('tabActiveBg', preset.tabActiveBg);
+
+    saveAppearance(true); // Persist immediately, silent
+    showToast(`Preset "${preset.name}" loaded.`, 'success');
+}
+
+/** Delete the selected preset. */
+export async function deletePreset() {
+    const select = document.getElementById('presetSelect');
+    const idx = parseInt(select?.value);
+    if (isNaN(idx)) { showToast('Select a preset to delete.', 'error'); return; }
+
+    const presets = Store.getThemePresets();
+    const preset = presets[idx];
+    if (!preset) return;
+
+    const confirmed = await showModal(`Delete preset "${preset.name}"?`, {
+        title: 'Delete Preset',
+        confirmText: 'Delete',
+        cancelText: 'Cancel'
+    });
+    if (!confirmed) return;
+
+    presets.splice(idx, 1);
+    Store.saveThemePresets(presets);
+    renderPresetDropdown();
+    showToast(`Preset "${preset.name}" deleted.`, 'info');
 }
 
 // Global click listener to close dropdowns

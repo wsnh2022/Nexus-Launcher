@@ -784,7 +784,7 @@
           <h2>Interface Settings</h2><br>
           <div class="appearance-section">
             <div class="settings-grid">
-              <!-- Layout Card -->
+              <!-- Layout Card — left column -->
               <div class="settings-card">
                 <div class="card-title">📐 Layout & Sizing</div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
@@ -830,50 +830,75 @@
                     </select>
                   </div>
                 </div>
-                <div class="input-field">
-                  <label>Label Font Size</label>
-                  <select id="labelFontSize">
-                    <option value="9">9px</option>
-                    <option value="10">10px</option>
-                    <option value="11">11px</option>
-                    <option value="12">12px</option>
-                    <option value="13">13px</option>
-                    <option value="14">14px</option>
-                  </select>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                  <div class="input-field">
+                    <label>Group / Label Font</label>
+                    <select id="labelFontSize">
+                      <option value="9">9px</option>
+                      <option value="10">10px</option>
+                      <option value="11">11px</option>
+                      <option value="12">12px</option>
+                      <option value="13">13px</option>
+                      <option value="14">14px</option>
+                    </select>
+                  </div>
+                  <div class="input-field">
+                    <label>Font Family</label>
+                    <select id="labelFont">
+                      <option value="Consolas">Consolas</option>
+                      <option value="'Segoe UI', Arial, sans-serif">Segoe UI</option>
+                      <option value="Tahoma, Arial, sans-serif">Tahoma</option>
+                      <option value="Arial, sans-serif">Arial</option>
+                      <option value="Verdana, sans-serif">Verdana</option>
+                      <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                      <option value="'Courier New', monospace">Courier New</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
-              <!-- Theme & Typography Card -->
-              <div class="settings-card">
-                <div class="card-title">🎨 Theme & Colors</div>
-                <div class="input-field">
-                  <label>Font Color</label>
-                  <div class="color-input-wrapper">
-                    <div class="color-preview" id="fontColorPreview"></div>
-                    <input type="color" id="fontColor" value="#00f2ff">
+              <!-- Right column: Theme & Colors + Presets stacked -->
+              <div style="display: flex; flex-direction: column; gap: 16px;">
+
+                <!-- Theme & Colors Card -->
+                <div class="settings-card">
+                  <div class="card-title">🎨 Theme & Colors</div>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: stretch;">
+                    <div class="input-field" style="margin-bottom: 0;">
+                      <label>Font Color</label>
+                      <input type="color" id="fontColor" value="#00f2ff" style="width: 100%; height: 38px;">
+                    </div>
+                    <div class="input-field" style="margin-bottom: 0;">
+                      <label>Background</label>
+                      <input type="color" id="bgColor" value="#121212" style="width: 100%; height: 38px;">
+                    </div>
+                    <div class="input-field" style="margin-bottom: 0;">
+                      <label>Glow & Highlights</label>
+                      <input type="color" id="accentColor" value="#00f2ff" style="width: 100%; height: 38px;">
+                    </div>
+                    <div class="input-field" style="margin-bottom: 0;">
+                      <label>Active Tab BG</label>
+                      <input type="color" id="tabActiveBg" value="#ffffff" style="width: 100%; height: 38px;">
+                    </div>
                   </div>
                 </div>
-                <div class="input-field">
-                  <label>Background Color</label>
-                  <div class="color-input-wrapper">
-                    <div class="color-preview" id="bgColorPreview"></div>
-                    <input type="color" id="bgColor" value="#121212">
+
+                <!-- Appearance Presets Card -->
+                <div class="settings-card" id="presetsCard" style="flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                  <div class="card-title">💾 Appearance Presets</div>
+                  <div style="display: flex; flex-direction: column; gap: 10px; flex: 1; justify-content: center;">
+                    <select id="presetSelect" style="width: 100%;">
+                      <option value="">— Select a preset —</option>
+                    </select>
+                    <input type="text" id="presetName" placeholder="Theme name (e.g. Cyan Noir)" style="width: 100%; border-radius: 8px;">
+                  </div>
+                  <div style="display: flex; gap: 8px; margin-top: 14px;">
+                    <button class="primary" style="flex: 1; padding: 7px 10px; font-size: 12px; border-radius: 8px;" onclick="window.ui.loadPreset()">Load</button>
+                    <button class="danger" style="flex: 1; padding: 7px 10px; font-size: 12px; border-radius: 8px;" onclick="window.ui.deletePreset()">Delete</button>
+                    <button class="secondary" style="flex: 1.6; padding: 7px 10px; font-size: 12px; border-radius: 8px; white-space: nowrap;" onclick="window.ui.savePreset()">Save Preset</button>
                   </div>
                 </div>
-                <div class="input-field">
-                  <label>Glow & UI Highlights</label>
-                  <div class="color-input-wrapper">
-                    <div class="color-preview" id="accentColorPreview"></div>
-                    <input type="color" id="accentColor" value="#00f2ff">
-                  </div>
-                </div>
-                <div class="input-field">
-                  <label>Active Tab Background</label>
-                  <div class="color-input-wrapper">
-                    <div class="color-preview" id="tabActiveBgPreview"></div>
-                    <input type="color" id="tabActiveBg" value="#ffffff">
-                  </div>
-                </div>
+
               </div>
             </div>
           </div>
@@ -902,22 +927,24 @@
               <span class="toggle-icon">▼</span>
             </div>
             <div class="add-section-content">
-              <div class="input-group">
-                <input type="text" id="providerName" placeholder="Name" style="flex: 1;"
+              <div class="input-group" style="flex-direction: column; gap: 8px;">
+                <input type="text" id="providerName" placeholder="Provider Name" style="width: 100%;"
                   oninput="window.ui.updateGetIconLink('provider')">
-                <select id="providerType" style="flex: 0.5;" onchange="window.ui.onTypeChange()">
-                  <option value="url">Web URL</option>
-                  <option value="file">File / Folder / .exe</option>
-                  <option value="cmd">Command/Script</option>
-                </select>
-                <select id="providerCategory" style="flex: 0.5;">
-                  <option value="">Default (Unsorted)</option>
-                  <option value="Work">Work</option>
-                  <option value="Social">Social</option>
-                  <option value="Tools">Tools</option>
-                  <option value="Media">Media</option>
-                  <option value="Personal">Personal</option>
-                </select>
+                <div style="display: flex; gap: 10px;">
+                  <select id="providerType" style="flex: 1;" onchange="window.ui.onTypeChange()">
+                    <option value="url">Web URL</option>
+                    <option value="file">File / Folder / .exe</option>
+                    <option value="cmd">Command/Script</option>
+                  </select>
+                  <select id="providerCategory" style="flex: 1;">
+                    <option value="">Default (Unsorted)</option>
+                    <option value="Work">Work</option>
+                    <option value="Social">Social</option>
+                    <option value="Tools">Tools</option>
+                    <option value="Media">Media</option>
+                    <option value="Personal">Personal</option>
+                  </select>
+                </div>
               </div>
               <div class="input-group" style="flex-direction: column; gap: 4px;">
                 <label id="providerUrlLabel" style="font-size: 12px; font-weight: 600; color: var(--text-color);">Target

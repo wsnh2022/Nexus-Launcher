@@ -22,7 +22,11 @@ import {
     toggleAddSection,
     toggleQuickSelect,
     changeProviderCategory,
-    onTypeChange
+    onTypeChange,
+    savePreset,
+    loadPreset,
+    deletePreset,
+    renderPresetDropdown
 } from './ui';
 import { Bridge } from './bridge';
 
@@ -52,7 +56,11 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleAddSection,
         toggleQuickSelect,
         changeProviderCategory,
-        onTypeChange
+        onTypeChange,
+        savePreset,
+        loadPreset,
+        deletePreset,
+        renderPresetDropdown
     };
     window.bridge = Bridge;
 
