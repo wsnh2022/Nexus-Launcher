@@ -201,6 +201,11 @@ function handleAction(target, query, type, shouldCopy) {
 
     logToFile(`[IPC] ${type.toUpperCase()} action triggered. Target: ${target}`);
 
+    if (!target) {
+        closePopup();
+        return;
+    }
+
     if (type === 'url') {
         const searchUrl = target.replace(/%s|{query}/g, encodeURIComponent(query));
         openInBrowser(searchUrl);
@@ -222,7 +227,11 @@ function handleAction(target, query, type, shouldCopy) {
 
         // Variable Injection (only if explicitly requested via {query})
         if (command.includes('{query}')) {
-            command = command.replace(/{query}/g, query);
+            const safeQuery = query
+                .replace(/\\/g, '\\\\')  // Escape backslashes first
+                .replace(/"/g, '\\"')    // Escape double quotes
+                .replace(/'/g, "\\'");    // Escape single quotes
+            command = command.replace(/{query}/g, safeQuery);
         }
 
         exec(command, (error) => {

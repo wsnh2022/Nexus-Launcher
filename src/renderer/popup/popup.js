@@ -123,6 +123,11 @@ function setSelectedIndex(newIndex) {
     wrappers.forEach((w, i) => w.classList.toggle('focused', i === clamped));
     selectedIndex = clamped;
     wrappers[clamped]?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+
+    // Update label with provider name at clamped index
+    const { filteredProviders } = getFilteredData();
+    const catProviders = filteredProviders.filter(p => (p.category || 'Unsorted') === currentCategory);
+    updateCategoryLabel(catProviders[clamped]?.name || null);
 }
 
 function updateIconGrid() {
@@ -192,7 +197,11 @@ function updateIconGrid() {
 
             // Mouse hover syncs the keyboard selection index (both methods stay in sync)
             iconContainer.addEventListener('mouseenter', () => {
-                setSelectedIndex(i);
+                setSelectedIndex(i); // label update handled inside setSelectedIndex
+            });
+
+            iconContainer.addEventListener('mouseleave', () => {
+                updateCategoryLabel(); // revert to category-only on mouse exit
             });
 
             iconContainer.appendChild(img);
@@ -223,11 +232,30 @@ function resizePopup() {
     }
 }
 
-function updateCategoryLabel() {
+function updateCategoryLabel(iconName = null) {
     const label = document.getElementById('category-name-label');
-    if (label) {
-        label.textContent = currentCategory;
-    }
+    if (!label) return;
+
+    // Clear and rebuild with spans — use textContent to avoid XSS on user-defined names
+    label.innerHTML = '';
+
+    const catSpan = document.createElement('span');
+    catSpan.className = 'label-cat';
+    catSpan.textContent = currentCategory;
+
+    const sepSpan = document.createElement('span');
+    sepSpan.className = 'label-sep';
+    sepSpan.textContent = '·';
+
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'label-icon';
+    iconSpan.textContent = iconName || '';
+
+    label.appendChild(catSpan);
+    label.appendChild(sepSpan);
+    label.appendChild(iconSpan);
+
+    label.classList.toggle('has-icon', !!iconName);
 }
 
 function renderPopup() {
@@ -265,6 +293,7 @@ function renderPopup() {
         updateIconGrid();
     };
 
+
     // ─── Keyboard Navigation ───────────────────────────────────────────────
     searchInput.onkeydown = (e) => {
         const grid = document.querySelector('.icon-grid');
@@ -279,9 +308,16 @@ function renderPopup() {
         const rowCount = wrappers.filter(w => w.getBoundingClientRect().top === firstTop).length || 1;
 
         if (e.key === 'ArrowRight') {
+            const atEnd = searchInput.selectionStart === searchInput.value.length
+                && searchInput.selectionEnd === searchInput.value.length;
+            if (!atEnd) return;
             e.preventDefault();
             setSelectedIndex(selectedIndex < 0 ? 0 : (selectedIndex + 1) % count);
+
         } else if (e.key === 'ArrowLeft') {
+            const atStart = searchInput.selectionStart === 0
+                && searchInput.selectionEnd === 0;
+            if (!atStart) return;
             e.preventDefault();
             setSelectedIndex(selectedIndex <= 0 ? count - 1 : selectedIndex - 1);
         } else if (e.key === 'ArrowDown') {
@@ -415,11 +451,11 @@ function renderPopup() {
 
         const label = document.createElement('div');
         label.id = 'category-name-label';
-        label.textContent = currentCategory;
         wrapper.appendChild(label);
 
         wrapper.appendChild(tabs);
         container.appendChild(wrapper);
+        updateCategoryLabel(); // initialize span structure in live DOM
     }
 
     // 2. Icon Grid

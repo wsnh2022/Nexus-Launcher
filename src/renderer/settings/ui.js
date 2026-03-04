@@ -83,6 +83,7 @@ export function initUI() {
             updateCategorySelects();
             renderProviders();
             renderCategories();
+            onTypeChange(); // Sync URL input placeholder with current type dropdown state on load
             log('UI Elements rendered (Providers/Categories).');
         } catch (e) { log(`Error rendering UI elements: ${e.message}`); }
 
@@ -763,16 +764,30 @@ export function cancelEdit() {
 export function onTypeChange() {
     const type = document.getElementById('providerType').value;
     const urlInput = document.getElementById('providerUrl');
+    const urlLabel = document.getElementById('providerUrlLabel');
+
     if (!urlInput) return;
 
     switch (type) {
         case 'url':
+            if (urlLabel) {
+                urlLabel.textContent = 'Target URL';
+                urlLabel.innerHTML = 'Target URL';
+            }
             urlInput.placeholder = 'URL with {query} (e.g. https://google.com/search?q={query})';
             break;
         case 'file':
-            urlInput.placeholder = 'Local Path (e.g. C:\\Windows\\notepad.exe)';
+            if (urlLabel) {
+                urlLabel.textContent = 'Target File Path';
+                urlLabel.innerHTML = 'Target File Path';
+            }
+            urlInput.placeholder = 'File or Folder Path (e.g. C:\\Users\\You\\Docs or C:\\Windows\\notepad.exe)';
             break;
         case 'cmd':
+            if (urlLabel) {
+                urlLabel.textContent = 'Command / Script Path';
+                urlLabel.innerHTML = 'Command / Script Path';
+            }
             urlInput.placeholder = 'Command or Script (e.g. python script.py "{query}")';
             break;
     }

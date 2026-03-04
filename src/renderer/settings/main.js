@@ -21,7 +21,8 @@ import {
     updateIconPreview,
     toggleAddSection,
     toggleQuickSelect,
-    changeProviderCategory
+    changeProviderCategory,
+    onTypeChange
 } from './ui';
 import { Bridge } from './bridge';
 
@@ -50,7 +51,8 @@ document.addEventListener('DOMContentLoaded', () => {
         updateIconPreview,
         toggleAddSection,
         toggleQuickSelect,
-        changeProviderCategory
+        changeProviderCategory,
+        onTypeChange
     };
     window.bridge = Bridge;
 

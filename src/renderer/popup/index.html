@@ -99,15 +99,62 @@
     }
 
     #category-name-label {
-      color: var(--label-color);
-      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      height: 16px;
+      /* fixed height — never shifts layout */
+      margin-top: 4px;
+      width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .label-cat {
+      font-size: 9px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 1.2px;
-      opacity: 0.9;
-      margin-top: 4px;
-      text-align: center;
-      width: 100%;
+      letter-spacing: 1px;
+      color: var(--label-color);
+      opacity: 0.75;
+      transition: opacity 0.15s ease, font-size 0.15s ease;
+    }
+
+    .label-sep {
+      font-size: 10px;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.2);
+      margin: 0 5px;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      line-height: 1;
+    }
+
+    .label-icon {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      color: rgba(255, 255, 255, 0.92);
+      text-transform: none;
+      opacity: 0;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: opacity 0.15s ease;
+    }
+
+    /* active state — icon name visible */
+    #category-name-label.has-icon .label-cat {
+      opacity: 0.55;
+    }
+
+    #category-name-label.has-icon .label-sep {
+      opacity: 1;
+    }
+
+    #category-name-label.has-icon .label-icon {
+      opacity: 1;
     }
 
     .category-tabs {
@@ -206,42 +253,11 @@
       outline: none;
     }
 
-    .provider-icon-wrapper.focused::after {
-      opacity: 1;
-      transform: translateX(-50%) translateY(-4px);
-    }
-
     .provider-icon {
       width: 100% !important;
       height: 100% !important;
       object-fit: contain;
       filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-    }
-
-    /* Floating Tooltip */
-    .provider-icon-wrapper::after {
-      content: attr(data-tooltip);
-      position: absolute;
-      bottom: 110%;
-      left: 50%;
-      transform: translateX(-50%) translateY(0);
-      background: #333;
-      color: #fff;
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 10px;
-      font-weight: 600;
-      white-space: nowrap;
-      opacity: 0;
-      pointer-events: none;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      z-index: 1000;
-    }
-
-    .provider-icon-wrapper:hover::after {
-      opacity: 1;
-      transform: translateX(-50%) translateY(-4px);
     }
   </style>
 </head>

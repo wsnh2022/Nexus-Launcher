@@ -880,7 +880,7 @@
                   oninput="window.ui.updateGetIconLink('provider')">
                 <select id="providerType" style="flex: 0.5;" onchange="window.ui.onTypeChange()">
                   <option value="url">Web URL</option>
-                  <option value="file">Local File</option>
+                  <option value="file">File / Folder / .exe</option>
                   <option value="cmd">Command/Script</option>
                 </select>
                 <select id="providerCategory" style="flex: 0.5;">
@@ -892,7 +892,9 @@
                   <option value="Personal">Personal</option>
                 </select>
               </div>
-              <div class="input-group">
+              <div class="input-group" style="flex-direction: column; gap: 4px;">
+                <label id="providerUrlLabel" style="font-size: 12px; font-weight: 600; color: var(--text-color);">Target
+                  URL</label>
                 <input type="text" id="providerUrl" placeholder="URL with {query}" style="flex: 1;"
                   oninput="window.ui.updateIconPreview('providerIcon', 'providerIconPreview')">
               </div>
