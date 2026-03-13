@@ -3,7 +3,7 @@
   <h1>PopSearch</h1>
 </div>
 
-# PopSearch v1.3.1-beta — Instant Search Assistant
+# PopSearch v1.3.1-beta — Context-Triggered Action Launcher
 
 [![Version](https://img.shields.io/badge/version-v1.3.1--beta-blue)](https://github.com/wsnh2022/pop-search/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078d7.svg?logo=windows&logoColor=white)](https://github.com/wsnh2022/pop-search)
@@ -11,7 +11,7 @@
 ![Electron](https://img.shields.io/badge/Electron-4B32C3?logo=electron&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
 
-PopSearch triggers a customizable search popup from selected text using a global hotkey. Select text in any application, trigger with Right-Click Hold or CapsLock + S, and instantly search across your favorite search engines, AI tools, and bookmarks.
+PopSearch is a context-triggered action launcher for Windows. Select text in any application, trigger with Right-Click Hold or CapsLock + S, and instantly dispatch it to any URL-based search engine, AI tool, internal system, local file, or script — organized into unlimited custom categories with no caps on providers or groups.
 
 > **Windows 10+ only.** macOS/Linux not supported.
 
@@ -34,9 +34,11 @@ PopSearch triggers a customizable search popup from selected text using a global
 
 ## What It Does
 
+PopSearch sits in the system tray and activates on a global hotkey. The selected text (or typed query) is injected into any provider you configure — a search engine, an AI chat interface, a company intranet, a local script, or a file path. Providers are grouped into categories. Both are unlimited. The popup reflects exactly what you build.
+
 ### Key Features
 
-- **Search Anywhere**: Select text in any app → trigger popup → search across 40+ engines instantly.
+- **Unlimited Providers**: Add any URL using the `{query}` placeholder, any local file path, or any command/script. There is no cap — the library grows as large as you need it.
 - **Smart Triggers**: Right-Click Hold (300ms) or CapsLock + S — choose the trigger that fits your workflow.
 - **Keyboard Navigation**: Navigate icons with Arrow Keys, switch categories with Tab, launch with Enter.
 - **Scroll Wheel Navigation**: Scroll the popup to cycle categories without lifting your hands from the keyboard.
@@ -48,7 +50,7 @@ PopSearch triggers a customizable search popup from selected text using a global
 - **Provider Search & Group Filter**: Live-search and category-filter providers inside Settings.
 - **Show/Hide Unsorted Toggle**: Control whether providers without a category appear in the popup.
 - **Default Browser Support**: All URLs open in your system's default browser.
-- **Infinite Extensibility**: Add any website using `{query}` placeholder and organize into custom groups.
+- **Unlimited Categories**: Create as many groups as your workflow requires — by domain, project, client, tool type, or any other scheme. No structural limits.
 - **Bulk Import with Dedup**: Import providers from TSV/Markdown. Automatically skips existing name+URL duplicates.
 - **Export / Import Config**: Back up and restore the full configuration as a portable JSON file.
 - **Professional Logging**: Managed log rotation (5MB limit). One-click access to the log file from Settings.
@@ -59,7 +61,7 @@ PopSearch triggers a customizable search popup from selected text using a global
 
 ## Visual Guide
 
-### The Instant Search Interface
+### The Popup Interface
 ![Search UI](assets/screenshots/main_popup.png)
 
 <div align="center">
@@ -148,9 +150,9 @@ https://www.google.com/search?q={query};;https://www.bing.com/search?q={query}
 
 Both URLs open in separate tabs on a single trigger. Works for `url` and `file` provider types.
 
-### Adding Search Providers
+### Adding Providers
 
-Under **Providers** tab in Settings, add search engines using `{query}` placeholder.
+Under the **Providers** tab in Settings, add any target using the `{query}` placeholder for URL-based providers. This works for any website, internal tool, SaaS platform, or custom domain — there is no supported list. If the site has a search URL, it works.
 
 Example: `https://www.google.com/search?q={query}`
 
@@ -169,12 +171,14 @@ Use the **Group** dropdown to filter by category, or type `#CategoryName` direct
 
 ### Bulk Import
 
-Organize bookmarks in a spreadsheet with columns: Category, Name, URL (with/without `{query}`), optional icon path. Paste or type the data into the **Bulk Import** pad in Settings. Existing providers with matching name+URL are automatically skipped.
+Organize providers in a spreadsheet with columns: Category, Name, URL (with/without `{query}`), optional icon path. Paste or type the data into the **Bulk Import** pad in Settings. Existing providers with matching name+URL are automatically skipped. This is the primary method for building large provider libraries — hundreds of entries across dozens of categories can be imported in a single paste.
 
 ![Bulk Import](assets/screenshots/Bulk_Import.png)
 
 <details>
-<summary>Example Custom URLs</summary>
+<summary>Sample Provider URLs (illustrative — not a supported list)</summary>
+
+Any site with a search URL works. The following are a small sample to illustrate the pattern.
 
 **Maps & Location**
 - Google Maps: `https://www.google.com/maps/search/{query}`
