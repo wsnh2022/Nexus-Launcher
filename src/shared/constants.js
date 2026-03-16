@@ -14,7 +14,9 @@ export const IPC_CHANNELS = {
     LOAD_CONFIG: 'load-config',
     OPEN_EXTERNAL: 'open-external',
     OPEN_LOG_FILE: 'open-log-file',
-    READ_LOCAL_ICON: 'read-local-icon'
+    READ_LOCAL_ICON: 'read-local-icon',
+    GET_LAUNCH_AT_STARTUP: 'get-launch-at-startup',
+    SET_LAUNCH_AT_STARTUP: 'set-launch-at-startup'
 };
 
 export const DEFAULT_APPEARANCE = {

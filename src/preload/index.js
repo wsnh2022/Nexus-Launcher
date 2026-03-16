@@ -16,5 +16,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   loadConfig: () => ipcRenderer.invoke(IPC_CHANNELS.LOAD_CONFIG),
   openExternal: (url) => ipcRenderer.send(IPC_CHANNELS.OPEN_EXTERNAL, url),
   openLogFile: () => ipcRenderer.send(IPC_CHANNELS.OPEN_LOG_FILE),
-  readLocalIcon: (filePath) => ipcRenderer.invoke(IPC_CHANNELS.READ_LOCAL_ICON, filePath)
+  readLocalIcon: (filePath) => ipcRenderer.invoke(IPC_CHANNELS.READ_LOCAL_ICON, filePath),
+  getLaunchAtStartup: () => ipcRenderer.invoke(IPC_CHANNELS.GET_LAUNCH_AT_STARTUP),
+  setLaunchAtStartup: (enabled) => ipcRenderer.invoke(IPC_CHANNELS.SET_LAUNCH_AT_STARTUP, enabled)
 });

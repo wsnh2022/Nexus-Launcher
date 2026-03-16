@@ -96,6 +96,25 @@ export function initUI() {
 
             setupToggle('toggleUnsortedBtn', settings.showUnsorted !== false, null);
 
+            // Launch at startup toggle — reads current state from OS (startup folder)
+            if (window.electronAPI && window.electronAPI.getLaunchAtStartup) {
+                window.electronAPI.getLaunchAtStartup().then(isEnabled => {
+                    const el = document.getElementById('launchAtStartupBtn');
+                    if (!el) return;
+                    el.classList.toggle('active', isEnabled);
+                    el.onclick = async () => {
+                        const nowActive = el.classList.toggle('active');
+                        const result = await window.electronAPI.setLaunchAtStartup(nowActive);
+                        if (result && result.success) {
+                            showToast(nowActive ? 'Added to startup ✓' : 'Removed from startup', 'success');
+                        } else {
+                            el.classList.toggle('active', !nowActive); // revert on failure
+                            showToast('Startup error: ' + (result?.error || 'unknown'), 'error');
+                        }
+                    };
+                }).catch(err => log(`launchAtStartup init failed: ${err.message}`));
+            }
+
             const openLogBtn = document.getElementById('openLogBtn');
             if (openLogBtn) {
                 openLogBtn.addEventListener('click', () => {

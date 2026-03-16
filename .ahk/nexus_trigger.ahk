@@ -22,55 +22,59 @@ CapsLock & s:: {
     TriggerPopup()
 }
 
-; RButton - short click passes through natively via ~ prefix
-; Hold ≥300ms triggers the popup search
-~RButton:: {
+; RButton — capture text at button-DOWN (selection still intact), decide on UP
+; Short press  → replay native right-click (context menu as normal)
+; Long press ≥300ms → open Nexus popup with the captured text
+RButton:: {
+    ; ── STEP 1: grab selected text RIGHT NOW at button-down ─────────────────
+    ; Most apps clear text selection on RButton-down, so Ctrl+C must happen
+    ; HERE — before KeyWait — while the selection is still alive.
+    savedClip := ClipboardAll()
+    A_Clipboard := ""
+    Send("^c")
+    ClipWait(0.4)
+    capturedText := A_Clipboard
+    A_Clipboard := savedClip          ; restore clipboard before any delay
+
+    ; ── STEP 2: time the hold ────────────────────────────────────────────────
     StartTime := A_TickCount
     KeyWait "RButton"
     PressDuration := A_TickCount - StartTime
 
     if (PressDuration >= 300) {
-        TriggerPopup()
+        FirePopup(capturedText)        ; use text already captured above
+    } else {
+        Click "Right"                  ; short press → replay native right-click
     }
-    ; Short press: native right-click already passed through — no Send() needed
 }
 
-TriggerPopup() {
-    ; Save current clipboard
-    savedClipboard := ClipboardAll()
-    A_Clipboard := ""
-
-    ; Attempt to copy selected text
-    Send("^c")
-
-    ; Wait for clipboard (0.3s for speed)
-    ClipWait(0.3)
-
-    selectedText := A_Clipboard
+; Called by RButton long-hold with pre-captured text (no Ctrl+C needed)
+FirePopup(selectedText) {
     encodedText := UriEncode(selectedText)
-
-    ; Send to Electron
     try {
         whr := ComObject("WinHttp.WinHttpRequest.5.1")
         whr.Open("GET", "http://127.0.0.1:49152/search?q=" . encodedText, false)
         whr.Send()
     } catch {
-        ; Fallback: launch the main exe directly when Electron is not yet running.
-        ; Production layout: nexus_trigger.exe is in <install>\resources\assets\
-        ;                    Nexus Launcher.exe is two levels up at <install>\
-        ; Dev layout:        nexus_trigger.exe is in assets\ (project root)
-        ;                    Nexus Launcher.exe is not present in dev — no-op.
         exePath := A_ScriptDir . "\..\..\Nexus Launcher.exe"
         if !FileExist(exePath)
-            exePath := A_ScriptDir . "\..\Nexus Launcher.exe"  ; dev fallback
+            exePath := A_ScriptDir . "\..\Nexus Launcher.exe"
         if FileExist(exePath) {
             Run('"' . exePath . '" --search="' . StrReplace(selectedText, '"', "'") . '"',
                 A_ScriptDir, "Hide")
         }
     }
+}
 
-    ; Restore clipboard
+; Called by CapsLock+S — keyboard shortcut so selection survives, Ctrl+C is safe here
+TriggerPopup() {
+    savedClipboard := ClipboardAll()
+    A_Clipboard := ""
+    Send("^c")
+    ClipWait(0.5)
+    selectedText := A_Clipboard
     A_Clipboard := savedClipboard
+    FirePopup(selectedText)
 }
 
 #HotIf ; Reset HotIf

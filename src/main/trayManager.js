@@ -2,11 +2,14 @@ import { Tray, Menu, nativeImage, app } from 'electron';
 import path from 'path';
 import { getMainWindow, getPopupWindow } from './windowManager.js';
 import { logToFile } from './logger.js';
+import { getLaunchAtStartup, setLaunchAtStartup } from './startupManager.js';
 
 let tray = null;
 
 export function updateTrayMenu() {
     if (!tray) return;
+
+    const isStartupEnabled = getLaunchAtStartup();
 
     const contextMenu = Menu.buildFromTemplate([
         {
@@ -26,6 +29,22 @@ export function updateTrayMenu() {
                 const popupWindow = getPopupWindow();
                 if (mainWindow && !mainWindow.isDestroyed()) mainWindow.reload();
                 if (popupWindow && !popupWindow.isDestroyed()) popupWindow.reload();
+            }
+        },
+        { type: 'separator' },
+        {
+            label: 'Launch at Startup',
+            type: 'checkbox',
+            checked: isStartupEnabled,
+            click: (menuItem) => {
+                const result = setLaunchAtStartup(menuItem.checked);
+                if (!result.success) {
+                    // Revert the checkmark if the operation failed
+                    menuItem.checked = !menuItem.checked;
+                    logToFile(`[Tray] Launch at Startup toggle failed: ${result.error}`);
+                }
+                // Rebuild menu so checkmark reflects true OS state
+                updateTrayMenu();
             }
         },
         { type: 'separator' },

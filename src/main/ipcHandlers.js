@@ -4,8 +4,9 @@ import path from 'path';
 import { exec } from 'child_process';
 import { IPC_CHANNELS } from '../shared/constants';
 import { getMainWindow, getPopupWindow, createPopup } from './windowManager.js';
-import { updateTrayMenu } from './trayManager.js';
 import { log, logToFile } from './logger.js';
+import { getLaunchAtStartup, setLaunchAtStartup } from './startupManager.js';
+import { updateTrayMenu } from './trayManager.js';
 
 export function registerIpcHandlers() {
     ipcMain.on(IPC_CHANNELS.SHOW_POPUP, (event, data) => {
@@ -165,6 +166,17 @@ export function registerIpcHandlers() {
     // Read a local image file and return it as a base64 data URL.
     // This bypasses Chromium's cross-origin restriction that blocks file:// img src
     // when the renderer is served from http://localhost (Vite dev mode).
+    ipcMain.handle(IPC_CHANNELS.GET_LAUNCH_AT_STARTUP, () => {
+        return getLaunchAtStartup();
+    });
+
+    ipcMain.handle(IPC_CHANNELS.SET_LAUNCH_AT_STARTUP, (event, enabled) => {
+        const result = setLaunchAtStartup(enabled);
+        // Keep tray menu checkmark in sync when toggled from settings UI
+        if (result.success) updateTrayMenu();
+        return result;
+    });
+
     ipcMain.handle(IPC_CHANNELS.READ_LOCAL_ICON, async (event, filePath) => {
         try {
             const ext = path.extname(filePath).toLowerCase();

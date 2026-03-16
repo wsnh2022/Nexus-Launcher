@@ -29,6 +29,7 @@ Nexus Launcher is a context-triggered action launcher for Windows. Select text i
 | 🔗 | **Multi-URL Launch** | Separate URLs with `;;` in a provider's URL field to open multiple tabs simultaneously from a single click or keypress. |
 | 🔃 | **Scroll Wheel Category Switching** | Scroll the mouse wheel over the popup to cycle through categories without touching the keyboard. |
 | 🔍 | **Provider Search & Group Filter** | Live-search providers by name in Settings. Filter by category via the Group dropdown or `#CategoryName` tag syntax. |
+| 🚀 | **Launch at Startup** | Toggle auto-start on Windows boot from Settings → Help & Support or the system tray right-click menu. Creates a shortcut in the Windows Startup folder. Works for both portable and installed builds. |
 
 ---
 
@@ -49,6 +50,7 @@ Nexus Launcher sits in the system tray and activates on a global hotkey. The sel
 - **Category Drag-to-Reorder**: Reorganize categories in Settings with drag-and-drop. Syncs instantly to popup.
 - **Provider Search & Group Filter**: Live-search and category-filter providers inside Settings.
 - **Show/Hide Unsorted Toggle**: Control whether providers without a category appear in the popup.
+- **Launch at Startup**: Toggle Windows startup shortcut from Settings or the tray right-click menu. Works for portable and installed builds.
 - **Default Browser Support**: All URLs open in your system's default browser.
 - **Unlimited Categories**: Create as many groups as your workflow requires - by domain, project, client, tool type, or any other scheme. No structural limits.
 - **Bulk Import with Dedup**: Import providers from TSV/Markdown. Automatically skips existing name+URL duplicates.
@@ -235,6 +237,8 @@ Use **Export** / **Import** buttons in the Settings footer to save or restore th
 
 Right-click the tray icon or the popup search bar to access Reload / Settings / Quit.
 
+The tray right-click menu also includes a **Launch at Startup** checkbox. Toggling it creates or removes a shortcut in `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup`. The same toggle is available in Settings → Help & Support.
+
 ---
 
 ## Development
@@ -323,6 +327,22 @@ MIT License. See [LICENSE](LICENSE) for details.
 ---
 
 ## Changelog
+
+### v1.3.2-beta - 2026-03-16
+
+#### New Features
+
+| # | Feature | Details |
+|---|---|---|
+| 1 | **Launch at Startup** | Toggle in Settings → Help & Support and tray right-click menu. Creates/removes a `.lnk` shortcut in the Windows Startup folder. Works for both portable and installed builds via `PORTABLE_EXECUTABLE_FILE` env detection. |
+
+#### Bug Fixes
+
+| # | Issue | Fix |
+|---|---|---|
+| 1 | Right-click hold not copying selected text to popup | Most apps clear text selection on RButton-down. Fixed by capturing clipboard via `Ctrl+C` at button-down (before `KeyWait`), then using the pre-captured text after the hold timer completes. Short right-clicks still replay as native context menu. |
+
+---
 
 ### v1.3.1-beta - 2026-02-20
 
