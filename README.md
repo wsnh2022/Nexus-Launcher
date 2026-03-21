@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="screenshot/Nexus_Launcher_Cover_Image.png"/>
+  <img src="assets/screenshots/Nexus_Launcher_Cover_Image.png"/>
   <h1>Nexus Launcher</h1>
 </div>
 
