@@ -1,9 +1,8 @@
 <div align="center">
   <img src="assets/screenshots/Nexus_Launcher_Cover_Image.png"/>
-  <h1>Nexus Launcher</h1>
 </div>
 
-# Context-Triggered Action Launcher
+# Nexus Launcher (Context-Triggered Action Launcher)
 
 [![Version](https://img.shields.io/badge/version-v1.3.1--beta-blue)](https://github.com/wsnh2022/nexus-launcher/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows-0078d7.svg?logo=windows&logoColor=white)](https://github.com/wsnh2022/nexus-launcher)
